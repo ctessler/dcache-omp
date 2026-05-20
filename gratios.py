@@ -17,6 +17,7 @@ import logging
 # data management and plotting
 import pandas as pd
 import matplotlib.pyplot as plt
+import numpy as np
 
 class APArgs(argparse.ArgumentParser):
     '''Parses the command line arguments'''
@@ -78,7 +79,6 @@ def byblocks(parsed, df):
 
 def byassoc(parsed, df):
     fig = byfield(df, 'assoc', 'Associativity)')
-
     fname = parsed.pfx + 'assoc.' + parsed.ext
     fig.savefig(fname)
     fig.clear()
@@ -89,6 +89,53 @@ def bythreads(parsed, df):
     fname = parsed.pfx + 'threads.' + parsed.ext
     fig.savefig(fname)
     fig.clear()
+
+def byfieldbar(df, field, xlabel):
+    gkeys = [field]
+    groups = df.groupby(gkeys, group_keys=True)
+    graphf = groups[['tmratio', 'dmratio', 'imratio']].mean()
+
+    bargroups = len(graphf.index)
+    barpos = np.arange(bargroups)
+    barwidth = .3
+
+    fig, ax = plt.subplots()
+    ax.bar(barpos + (0 * barwidth), graphf['tmratio'], barwidth, label='Cache Miss Ratio')
+    ax.bar(barpos + (1 * barwidth), graphf['dmratio'], barwidth, label='Data Cache Miss Ratio')
+    ax.bar(barpos + (2 * barwidth), graphf['imratio'], barwidth, label='Instruction Cache Miss Ratio')
+    ax.set_xlabel(xlabel)
+    ax.set_ylabel('Ratio')
+
+    ax.set_xticks(barpos + barwidth, graphf.index)
+    ax.legend()
+
+    return fig
+
+def barsets(parsed, df):
+    fig = byfieldbar(df, 'cache_sets', 'Cache Sets')
+    fname = parsed.pfx + 'sets-bar.' + parsed.ext
+    fig.savefig(fname)
+    fig.clear()
+
+def barassoc(parsed, df):
+    fig = byfieldbar(df, 'assoc', 'Associativity')
+    fname = parsed.pfx + 'assoc-bar.' + parsed.ext
+    fig.savefig(fname)
+    fig.clear()
+
+def barthreads(parsed, df):
+    fig = byfieldbar(df, 'threads', 'Threads')
+    fname = parsed.pfx + 'threads-bar.' + parsed.ext
+    fig.savefig(fname)
+    fig.clear()
+
+def barblocks(parsed, df):
+    fig = byfieldbar(df, 'blk_size', 'Block Size (bytes)')
+    fname = parsed.pfx + 'bocks-bar.' + parsed.ext
+    fig.savefig(fname)
+    fig.clear()
+
+
 
 #
 # Entry point
@@ -107,6 +154,12 @@ def main():
     byblocks(parsed, df)
     byassoc(parsed, df)
     bythreads(parsed, df)
+
+    barsets(parsed, df)
+    barblocks(parsed, df)
+    barassoc(parsed, df)
+    barthreads(parsed, df)
+
 
 
 if __name__ == '__main__':
