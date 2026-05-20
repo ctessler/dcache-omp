@@ -55,8 +55,7 @@ def main():
 
     csvs = []
     with open(parsed.filelist, 'r') as ifile:
-        for line in ifile:
-            csvs.append(line.strip())
+        [csvs.append(line.strip()) for line in ifile]
 
     fields=None
     rows=[]
