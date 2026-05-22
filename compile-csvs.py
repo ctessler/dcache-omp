@@ -64,11 +64,13 @@ def main():
         with open(csvf, 'r') as ifile:
             reader = csv.DictReader(ifile)
             for row in reader:
+                approach = row['']
                 del row['']
                 keys = row.keys()
                 rows.append(row)
-                fields=['bmark', *keys]
+                fields=['appr', 'bmark', *keys]
                 row['bmark'] = bname
+                row['appr'] = approach
 
     logger.info(f'Writing single CSV file {parsed.outfile}')
     with open(parsed.outfile, 'w') as ofile:
