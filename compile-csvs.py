@@ -14,6 +14,9 @@ import argparse
 import csv
 import logging
 
+import re
+import os
+
 class CCArgs(argparse.ArgumentParser):
     '''Parses the command line arguments'''
 
@@ -34,13 +37,18 @@ class CCArgs(argparse.ArgumentParser):
 
 def fname2bname(fname):
     '''Converts a filename to a benchmark name'''
-    import re
-    import os
     base = os.path.basename(fname)
-
+    base = re.sub(fname2suite(fname) + '_', '', base)
     bname = re.sub(r'_brt.*\.csv', '', base)
 
     return bname
+
+def fname2suite(fname):
+    '''Converts a filename to a benchmark suite'''
+    base = os.path.basename(fname)
+    suite = re.sub(r'_.*', '', base)
+
+    return suite
 
 #
 # Entry point
@@ -61,16 +69,20 @@ def main():
     rows=[]
     for csvf in csvs:
         bname = fname2bname(csvf)
+        suite = fname2suite(csvf)
         with open(csvf, 'r') as ifile:
             reader = csv.DictReader(ifile)
             for row in reader:
                 approach = row['']
                 del row['']
+                if 'Unnamed: 0' in row:
+                    del row['Unnamed: 0']
                 keys = row.keys()
-                rows.append(row)
-                fields=['appr', 'bmark', *keys]
+                fields=['suite', 'appr', 'bmark', *keys]
                 row['bmark'] = bname
                 row['appr'] = approach
+                row['suite'] = suite
+                rows.append(row)
 
     logger.info(f'Writing single CSV file {parsed.outfile}')
     with open(parsed.outfile, 'w') as ofile:

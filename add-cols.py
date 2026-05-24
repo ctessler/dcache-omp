@@ -9,7 +9,8 @@
 # fill-column: 79
 # End:
 
-IONLY='base'
+IONLY='I-Only'
+SFDBEST=r'I&D-SFBest'
 
 # Argument parsing
 import argparse
@@ -33,9 +34,9 @@ class AWArgs(argparse.ArgumentParser):
 
         self.add_argument('icsv', nargs='?',
                           help='Path to file csv from compiled-cvs.py')
-        self.add_argument('ocsv', nargs='?', default='obs.csv',
+        self.add_argument('ocsv', nargs='?', default='calc.csv',
                           help='Name of the output file with run-time'
-                          'default:./obs.csv')
+                          'default:./calc.csv')
 
 #
 # Entry point
@@ -65,7 +66,7 @@ def main():
     basef = df[df['appr'] == IONLY].copy()
     drops = basef.filter(regex='appr', axis=1).columns
     basef = basef.drop(columns=drops)
-    mergecols = ['bmark', 'threads', 'brt', 'assoc', 'blk_size',
+    mergecols = ['suite', 'bmark', 'threads', 'brt', 'assoc', 'blk_size',
                  'cache_sets']
 
     combf = pd.merge(df, basef, suffixes=['','_ionly'], how='inner',

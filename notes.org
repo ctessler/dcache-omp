@@ -1,5 +1,5 @@
 * Order of Operations
   1. find-csvs.sh --> list.txt            creates a list of all csv files
   2. compile-csvs.py --> compiled.csv     creates a single csv file from list.txt
-  3. avg-perf.py --> ratios.csv           adds hit/miss ratios to compiled results
+  3. add-cols.py --> calc.csv             adds calculated columns
   4. gratios.py --> [pdfs]                graphs cache miss ratios by dimensions

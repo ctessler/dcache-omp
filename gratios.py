@@ -9,6 +9,10 @@
 # fill-column: 79
 # End:
 
+IONLY='I-Only'
+SFDBEST=r'I&D-SFBest'
+
+
 # Argument parsing
 import argparse
 import csv
@@ -40,21 +44,36 @@ class APArgs(argparse.ArgumentParser):
                           help='Type of the output file '
                           'default:./pdf')
 
+def appr2name(appr):
+    fmts={IONLY   : 'I-Only',
+          SFDBEST : r'I\&D-SFBest'}
 
-def byfield(df, field, xlabel):
+    return fmts[appr]
+
+def _byfield(subf, field, xlabel, appr, ax):
     gkeys = [field]
-    groups = df.groupby(gkeys, group_keys=True)
+    groups = subf.groupby(gkeys, group_keys=True)
     graphf = groups[['tmratio', 'dmratio', 'imratio']].mean()
 
-    fig, ax = plt.subplots()
-    ax.plot(graphf.index, graphf['tmratio'], marker='x', label='Cache Miss Ratio')
-    ax.plot(graphf.index, graphf['dmratio'], marker='o', label='Data Cache Miss Ratio')
-    ax.plot(graphf.index, graphf['imratio'], marker='.', label='Instruction Cache Miss Ratio')
-    ax.set_xlabel(xlabel)
-    ax.set_ylabel('Ratio')
+    ax.plot(graphf.index, graphf['tmratio'], marker='x',
+            label=f'{appr2name(appr)} Cache Miss Ratio')
+    ax.plot(graphf.index, graphf['dmratio'], marker='o',
+            label=f'{appr2name(appr)} Data Cache Miss Ratio')
+    ax.plot(graphf.index, graphf['imratio'], marker='.',
+            label=f'{appr2name(appr)} Instruction Cache Miss Ratio')
 
     ax.set_xscale('symlog', base=2)
     ax.set_xticks(graphf.index)
+
+def byfield(df, field, xlabel):
+    fig, ax = plt.subplots()
+
+    for appr in [IONLY, SFDBEST]:
+        subf = df[df['appr'] == appr]
+        _byfield(subf, field, xlabel, appr, ax)
+
+    ax.set_xlabel(xlabel)
+    ax.set_ylabel('Ratio')
     ax.legend()
 
     import matplotlib.ticker
@@ -89,6 +108,7 @@ def bythreads(parsed, df):
     fname = parsed.pfx + 'threads.' + parsed.ext
     fig.savefig(fname)
     fig.clear()
+
 
 def byfieldbar(df, field, xlabel):
     gkeys = [field]
@@ -155,10 +175,10 @@ def main():
     byassoc(parsed, df)
     bythreads(parsed, df)
 
-    barsets(parsed, df)
-    barblocks(parsed, df)
-    barassoc(parsed, df)
-    barthreads(parsed, df)
+    # barsets(parsed, df)
+    # barblocks(parsed, df)
+    # barassoc(parsed, df)
+    # barthreads(parsed, df)
 
 
 
