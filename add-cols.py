@@ -56,6 +56,8 @@ def main():
     df['dhratio'] = df['dhit']  / (df['dmiss'] + df['dhit'])
     df['imratio'] = df['imiss'] / (df['imiss'] + df['ihit'])
     df['ihratio'] = df['ihit']  / (df['imiss'] + df['ihit'])
+    df['thit']   = df['dhit'] + df['ihit']
+    df['tmiss']   = df['dmiss'] + df['imiss']
     df['tmratio'] = (df['dmiss'] + df['imiss']) / (df['dmiss'] + df['dhit'] + df['imiss'] + df['ihit'])
     df['thratio'] = (df['dhit'] + df['dhit']) / (df['dmiss'] + df['dhit'] + df['imiss'] + df['ihit'])
 
@@ -73,7 +75,7 @@ def main():
                      on=mergecols)
     for metric in ['dmiss', 'dhit', 'imiss', 'ihit', 'obs',
                    'dmratio', 'dhratio', 'imratio', 'ihratio',
-                   'tmratio', 'thratio']:
+                   'tmiss', 'thit', 'tmratio', 'thratio']:
         ionly = metric + '_ionly'
         dif = metric + '_iodif'
         pct = metric + '_iopct'

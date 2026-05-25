@@ -74,6 +74,7 @@ def main():
             reader = csv.DictReader(ifile)
             for row in reader:
                 approach = row['method']
+                del row['method']
                 if '' in row:
                     raise ValueError
                 if 'Unnamed: 0' in row:
