@@ -146,8 +146,6 @@ def main():
             marker=appr2mark(common.BEST),
             color=appr2color(common.BEST))
 
-    print(best)
-
     ax.set_ylabel('Data Cache Miss Improvement Compared to I-Only')
     ax.set_xlabel('Cache Size (Bytes)')
     ax.set_xscale('log', base=2)
@@ -155,7 +153,7 @@ def main():
 
     vals = ax.get_yticks()
     ax.set_yticks(vals)
-    ax.set_yticklabels([f'{v}%' for v in vals])
+    ax.set_yticklabels([f'{v}' r'\%' for v in vals])
     ax.legend()
 
     import matplotlib.ticker
@@ -163,6 +161,7 @@ def main():
     ax.get_xaxis().set_minor_formatter(matplotlib.ticker.NullFormatter())
 
     fig.suptitle('OpenMP Benchmarks')
+    fig.set_layout_engine('compressed')
     fig.savefig(parsed.outfile)
     fig.clear()
 
