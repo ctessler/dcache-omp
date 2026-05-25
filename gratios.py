@@ -80,30 +80,30 @@ def byfield(df, field, xlabel):
 
     return fig
 
-def bysets(parsed, df):
+def bysets(parsed, df, name):
     fig = byfield(df, 'cache_sets', 'Cache Sets')
 
-    fname = parsed.pfx + 'sets.' + parsed.ext
+    fname = parsed.pfx + f'sets.{name}.' + parsed.ext
     fig.savefig(fname)
     fig.clear()
 
-def byblocks(parsed, df):
+def byblocks(parsed, df, name):
     fig = byfield(df, 'blk_size', 'Block Size (Bytes)')
 
-    fname = parsed.pfx + 'blocks.' + parsed.ext
+    fname = parsed.pfx + f'blocks.{name}.' + parsed.ext
     fig.savefig(fname)
     fig.clear()
 
-def byassoc(parsed, df):
+def byassoc(parsed, df, name):
     fig = byfield(df, 'assoc', 'Associativity)')
-    fname = parsed.pfx + 'assoc.' + parsed.ext
+    fname = parsed.pfx + f'assoc.{name}.' + parsed.ext
     fig.savefig(fname)
     fig.clear()
 
-def bythreads(parsed, df):
+def bythreads(parsed, df, name):
     fig = byfield(df, 'threads', 'Threads')
 
-    fname = parsed.pfx + 'threads.' + parsed.ext
+    fname = parsed.pfx + f'threads.{name}.' + parsed.ext
     fig.savefig(fname)
     fig.clear()
 
@@ -153,8 +153,6 @@ def barblocks(parsed, df):
     fig.savefig(fname)
     fig.clear()
 
-
-
 #
 # Entry point
 #
@@ -168,10 +166,14 @@ def main():
     logger.info(f'Reading CSV {parsed.icsv}')
     df = pd.read_csv(parsed.icsv)
 
-    bysets(parsed, df)
-    byblocks(parsed, df)
-    byassoc(parsed, df)
-    bythreads(parsed, df)
+    mrtc = df[df['suite'] == 'mrtc']
+    openmp = df[df['suite'] == 'openmp']
+
+    for sf, name in zip([mrtc, openmp], ['mrtc', 'openmp']):
+        bysets(parsed, sf, name)
+        byblocks(parsed, sf, name)
+        byassoc(parsed, sf, name)
+        bythreads(parsed, sf, name)
 
     # barsets(parsed, df)
     # barblocks(parsed, df)
