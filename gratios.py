@@ -8,11 +8,6 @@
 # eval: (auto-fill-mode)
 # fill-column: 79
 # End:
-
-IONLY='I-Only'
-SFDBEST=r'I&D-SFBest'
-
-
 # Argument parsing
 import argparse
 import csv
@@ -22,6 +17,9 @@ import logging
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
+
+import common
+from common import appr2name, appr2color, appr2line
 
 class APArgs(argparse.ArgumentParser):
     '''Parses the command line arguments'''
@@ -44,22 +42,22 @@ class APArgs(argparse.ArgumentParser):
                           help='Type of the output file '
                           'default:./pdf')
 
-def appr2name(appr):
-    fmts={IONLY   : 'I-Only',
-          SFDBEST : r'I\&D-SFBest'}
-
-    return fmts[appr]
-
 def _byfield(subf, field, xlabel, appr, ax):
     gkeys = [field]
     groups = subf.groupby(gkeys, group_keys=True)
     graphf = groups[['tmratio', 'dmratio', 'imratio']].mean()
 
-    ax.plot(graphf.index, graphf['tmratio'], marker='x',
+    ax.plot(graphf.index, graphf['tmratio'], marker='X',
+            linestyle=appr2line(appr),
+            color= appr2color(appr),
             label=f'{appr2name(appr)} Cache Miss Ratio')
-    ax.plot(graphf.index, graphf['dmratio'], marker='o',
+    ax.plot(graphf.index, graphf['dmratio'], marker='v',
+            linestyle=appr2line(appr),
+            color= appr2color(appr),
             label=f'{appr2name(appr)} Data Cache Miss Ratio')
-    ax.plot(graphf.index, graphf['imratio'], marker='.',
+    ax.plot(graphf.index, graphf['imratio'], marker='o',
+            linestyle=appr2line(appr),
+            color= appr2color(appr),
             label=f'{appr2name(appr)} Instruction Cache Miss Ratio')
 
     ax.set_xscale('symlog', base=2)
@@ -68,7 +66,7 @@ def _byfield(subf, field, xlabel, appr, ax):
 def byfield(df, field, xlabel):
     fig, ax = plt.subplots()
 
-    for appr in [IONLY, SFDBEST]:
+    for appr in common.appr:
         subf = df[df['appr'] == appr]
         _byfield(subf, field, xlabel, appr, ax)
 

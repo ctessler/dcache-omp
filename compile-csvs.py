@@ -73,8 +73,9 @@ def main():
         with open(csvf, 'r') as ifile:
             reader = csv.DictReader(ifile)
             for row in reader:
-                approach = row['']
-                del row['']
+                approach = row['method']
+                if '' in row:
+                    raise ValueError
                 if 'Unnamed: 0' in row:
                     del row['Unnamed: 0']
                 keys = row.keys()
