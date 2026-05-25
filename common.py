@@ -41,7 +41,7 @@ def appr2mark(appr):
 
 matplotlib.rcParams.update({
     'font.family': 'Times',
-    'font.size' : int(14),
+    'font.size' : int(16),
     'text.usetex': True,
     'text.latex.preamble' : r'''\usepackage{amsfonts}'''
 })
