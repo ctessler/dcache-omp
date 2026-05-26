@@ -36,9 +36,12 @@ class GOAArgs(argparse.ArgumentParser):
             formatter_class=argparse.RawDescriptionHelpFormatter)
 
         self.add_argument('icsv', nargs='?', help='Input CSV file')
-        self.add_argument('outfile', nargs='?', default='g-openmp-agg.pdf',
-                          help='Name of the output file '
-                          'default:./g-openmp-agg.pdf')
+        self.add_argument('--pfx', default='g-agg-',
+                          help='Prefix of output files '
+                          'default:./g-agg')
+        self.add_argument('--ext', default='.pdf',
+                          help='Extension for files '
+                          'default:.pdf')
 
 def threepack(subf, sizes, field, ax, label):
     ionly = {}
@@ -62,75 +65,6 @@ def threepack(subf, sizes, field, ax, label):
             raise ValueError
 
     ax.plot(sizes, [float(ionly[x]) for x in sizes],
-            label=f'{appr2name(common.IONLY)} {field}')
-    ax.plot(sizes, [float(stack[x]) for x in sizes],
-            label=f'{appr2name(common.STACK)} {field}')
-    ax.plot(sizes, [float(best[x]) for x in sizes],
-            label=f'{appr2name(common.BEST)} {field}')
-
-
-#
-# Entry point
-#
-def main():
-    argp = GOAArgs()
-    parsed = argp.parse_args()
-
-    logging.basicConfig(level=logging.INFO)
-    logger = logging.getLogger(__name__)
-
-    logger.info(f'Reading CSV {parsed.icsv}')
-    df = pd.read_csv(parsed.icsv)
-
-    omp = df[df['suite'] == 'openmp']
-
-    gkeys = ['cache_sets', 'blk_size', 'assoc', 'appr']
-    gkeys = ['bmark', 'appr']
-    groups = omp.groupby(gkeys, group_keys=True)
-
-    for keys,frame in groups:
-        (bmark, appr) = keys
-        dmissavg = round(frame['dmiss'].mean())
-        dmisspct = round(frame['dmratio'].mean() * 100, 2)
-        dmioavg = round(frame['dmiss_ionly'].mean())
-        dmiopct = round(frame['dmiss_iopct'].mean(), 2)
-        # print(f'{bmark} {appr} Data Miss {dmissavg}({dmisspct}%) pct I-Only ({dmioavg}){dmiopct}%')
-
-    # Get the unique cache sizes
-    sizes = []
-    groups = omp.groupby(['cache_sets', 'blk_size', 'assoc'], group_keys=True)
-    for keys,frame in groups:
-        (s, b, a) = keys
-        sizes.append(s * b * a)
-    sizes = sorted(list(set(sizes)))
-
-    # Get the values per cache size
-    gkeys = ['cache_sets', 'blk_size', 'assoc', 'appr']
-    groups = omp.groupby(gkeys, group_keys=True)
-    ionly = {}
-    stack = {}
-    best  = {}
-    for a,b in groups:
-        (sets, blk, assoc, appr) = a
-        size = sets * blk * assoc
-
-        dmisspct = round((100 - b['dmiss_iopct'].mean()), 2)
-        if appr == common.IONLY:
-            ionly[size] = dmisspct
-        elif appr == common.STACK:
-            stack[size] = dmisspct
-        elif appr == common.BEST:
-            best[size] = dmisspct
-        else:
-            raise ValueError
-
-    bargroups = len(sizes)
-    barpos = np.arange(bargroups)
-    barwidth = .3
-    fig, ax = plt.subplots()
-
-
-    ax.plot(sizes, [float(ionly[x]) for x in sizes],
             label=appr2name(common.IONLY),
             linestyle=appr2line(common.IONLY),
             marker=appr2mark(common.IONLY),
@@ -146,7 +80,13 @@ def main():
             marker=appr2mark(common.BEST),
             color=appr2color(common.BEST))
 
-    ax.set_ylabel('Data Cache Miss Improvement Compared to I-Only')
+
+    if label == 'dmiss_iopct':
+        metric = 'Data'
+    else:
+        metric = 'Total'
+
+    ax.set_ylabel(f'{metric} Cache Miss Improvement Compared to I-Only')
     ax.set_xlabel('Cache Size (Bytes)')
     ax.set_xscale('log', base=2)
     ax.set_xticks(sizes)
@@ -160,18 +100,81 @@ def main():
     ax.get_xaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
     ax.get_xaxis().set_minor_formatter(matplotlib.ticker.NullFormatter())
 
-    fig.suptitle('OpenMP Benchmarks')
-    fig.set_layout_engine('compressed')
-    fig.savefig(parsed.outfile)
-    fig.clear()
+#
+# Entry point
+#
+def main():
+    argp = GOAArgs()
+    parsed = argp.parse_args()
 
+    logging.basicConfig(level=logging.INFO)
+    logger = logging.getLogger(__name__)
+
+    logger.info(f'Reading CSV {parsed.icsv}')
+    df = pd.read_csv(parsed.icsv)
+
+    omp = df[df['suite'] == 'openmp']
+    mrtc = df[df['suite'] == 'mrtc']
+
+    # Get the unique cache sizes
+    sizes = []
+    groups = omp.groupby(['cache_sets', 'blk_size', 'assoc'], group_keys=True)
+    for keys,frame in groups:
+        (s, b, a) = keys
+        sizes.append(s * b * a)
+    sizes = sorted(list(set(sizes)))
+
+    #
+    # OpenMP data cache misses
+    #
     fig, ax = plt.subplots()
     threepack(omp, sizes, 'dmiss_iopct', ax, 'dmiss_iopct')
-    threepack(omp, sizes, 'imiss_iopct', ax, 'imiss_iopct')
+    fig.suptitle('OpenMP Benchmarks')
+    fig.set_layout_engine('compressed')
+    fname = parsed.pfx + '.dmiss_iopct.openmp' + parsed.ext
+    logger.info(f'Writing {fname}')
+    fig.savefig(fname)
+    fig.clear()
+    plt.close()
+
+    #
+    # OpenMP total cache misses
+    #
+    fig, ax = plt.subplots()
     threepack(omp, sizes, 'tmiss_iopct', ax, 'tmiss_iopct')
-    ax.legend()
-    # fig.savefig('test2.pdf')
-    # fig.clear()
+    fig.suptitle('OpenMP Benchmarks')
+    fig.set_layout_engine('compressed')
+    fname = parsed.pfx + '.tmiss_iopct.openmp' + parsed.ext
+    logger.info(f'Writing {fname}')
+    fig.savefig(fname)
+    fig.clear()
+    plt.close()
+
+    #
+    # MRTC data cache misses
+    #
+    fig, ax = plt.subplots()
+    threepack(mrtc, sizes, 'dmiss_iopct', ax, 'dmiss_iopct')
+    fig.suptitle('MRTC Benchmarks')
+    fig.set_layout_engine('compressed')
+    fname = parsed.pfx + '.dmiss_iopct.mrtc' + parsed.ext
+    logger.info(f'Writing {fname}')
+    fig.savefig(fname)
+    fig.clear()
+    plt.close()
+
+    #
+    # MRTC total cache misses
+    #
+    fig, ax = plt.subplots()
+    threepack(mrtc, sizes, 'tmiss_iopct', ax, 'tmiss_iopct')
+    fig.suptitle('MRTC Benchmarks')
+    fig.set_layout_engine('compressed')
+    fname = parsed.pfx + '.tmiss_iopct.mrtc' + parsed.ext
+    logger.info(f'Writing {fname}')
+    fig.savefig(fname)
+    fig.clear()
+    plt.close()
 
 if __name__ == '__main__':
     main()

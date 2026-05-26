@@ -22,6 +22,10 @@ def appr2color(appr):
             BEST  : '#00008B',
             STACK : '#8C8C00'}
 
+    colors={IONLY : 'black',
+            BEST  : '#00008B',
+            STACK : '#8C8C00'}
+
     return colors[appr]
 
 def appr2line(appr):
@@ -41,7 +45,8 @@ def appr2mark(appr):
 
 matplotlib.rcParams.update({
     'font.family': 'Times',
+#    'font.family': 'Latin Modern Roman',
     'font.size' : int(16),
     'text.usetex': True,
-    'text.latex.preamble' : r'''\usepackage{amsfonts}'''
+#    'text.latex.preamble' : r'''\usepackage{amsfonts}'''
 })

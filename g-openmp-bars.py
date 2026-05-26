@@ -37,9 +37,12 @@ class GOBArgs(argparse.ArgumentParser):
             formatter_class=argparse.RawDescriptionHelpFormatter)
 
         self.add_argument('icsv', nargs='?', help='Input CSV file')
-        self.add_argument('outfile', nargs='?', default='g-openmp-bars.pdf',
-                          help='Name of the output file '
-                          'default:./g-openmp-bars.pdf')
+        self.add_argument('--pfx', default='g-bar',
+                          help='Prefix of output files '
+                          'default:./g-agg')
+        self.add_argument('--ext', default='.pdf',
+                          help='Extension for files '
+                          'default:.pdf')
 
 
 def findmins(df):
@@ -69,8 +72,6 @@ def bestp(ax, df, cache_sets, blk_size, assoc):
     best = subf[subf['appr'] == common.BEST]
     bestg = best.groupby('bmark')
 
-    print(list(bestg.groups.keys()))
-
     bargroups = len(bmarks)
     barpos = np.arange(bargroups)
     barwidth = .3
@@ -92,7 +93,7 @@ def bestp(ax, df, cache_sets, blk_size, assoc):
     ax.set_yticklabels([f'{v}' r'\%' for v in vals])
     ax.set_xlabel('OpenMP Benchmark')
     ax.set_ylabel('Percentage of ' + appr2name(common.IONLY) + ' Data Cache Misses')
-    ax.legend()
+    ax.legend(loc='lower right')
 
 #
 # Entry point
@@ -109,15 +110,32 @@ def main():
 
     opm = df[df['suite'] == 'openmp']
 
-    findmins(opm)
-
     fig, ax = plt.subplots()
     bestp(ax, opm, 16, 16, 1)
 
-    logger.info(f'Writing {parsed.outfile}')
     fig.suptitle('Cache Sets: 16, Block Size: 16, Associativity: 1')
     fig.set_layout_engine('tight')
-    fig.savefig(parsed.outfile)
+
+    fname = parsed.pfx + '.openmp' + parsed.ext
+    logger.info(f'Writing {fname}')
+    fig.savefig(fname)
+    fig.clear()
+    plt.close()
+
+    mrtc = df[df['suite'] == 'mrtc']
+    findmins(mrtc)
+    fig, ax = plt.subplots()
+    sets = 16
+    bsize = 16
+    assoc = 1
+    bestp(ax, mrtc, sets, bsize, assoc)
+    fig.suptitle(f'Cache Sets: {sets}, Block Size: {bsize}, Associativity: {assoc}')
+    fig.set_layout_engine('tight')
+    fname = parsed.pfx + '.mrtc' + parsed.ext
+    logger.info(f'Writing {fname}')
+    fig.savefig(fname)
+    fig.clear()
+    plt.close()
 
     pass
 

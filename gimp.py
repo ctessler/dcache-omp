@@ -9,9 +9,6 @@
 # fill-column: 79
 # End:
 
-IONLY='I-Only'
-SFDBEST=r'I&D-SFBest'
-
 # Argument parsing
 import argparse
 import csv
@@ -21,6 +18,9 @@ import logging
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
+
+import common
+from common import appr2name, appr2color, appr2line, appr2mark
 
 class APArgs(argparse.ArgumentParser):
     '''Parses the command line arguments'''
@@ -42,13 +42,6 @@ class APArgs(argparse.ArgumentParser):
         self.add_argument('ext', nargs='?', default='pdf',
                           help='Type of the output file '
                           'default:./pdf')
-
-def appr2name(appr):
-    fmts={IONLY   : 'I-Only',
-          SFDBEST : r'I&D-SFBest'}
-
-    return fmts[appr]
-
 def mklabel(field):
     labels={
         'threads' : 'Threads',
@@ -92,10 +85,11 @@ def mklabel(field):
 
 def linear(df, parsed, appr, x, y):
     fig = _linear(df, appr, x, y)
-    fname = parsed.pfx + f'{x}.{y}.' + parsed.ext
+    fname = parsed.pfx + f'{x}.{y}.{appr}.' + parsed.ext
     logging.info(f'Writing {fname}')
     fig.savefig(fname, bbox_inches='tight')
     fig.clear()
+    plt.close()
 
 def _linear(df, appr, x, y):
     fig, ax = plt.subplots()
@@ -142,7 +136,8 @@ def main():
     for x in ['threads', 'cache_sets', 'assoc']:
         for y in ['obs_iodif', 'obs_iopct',
                   'dmiss_iodif', 'dmiss_iopct']:
-            linear(df, parsed, SFDBEST, x, y)
+            linear(df, parsed, common.BEST, x, y)
+            linear(df, parsed, common.STACK, x, y)
 
 if __name__ == '__main__':
     main()
