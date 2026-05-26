@@ -178,7 +178,7 @@ def main():
     fig.set_layout_engine('compressed')
     fname = parsed.pfx + 'threads.dmiss_iopct.openmp' + parsed.ext
     logger.info(f'Writing {fname}')
-    fig.savefig(fname)
+    fig.savefig(fname, bbox_inches='tight', pad_inches=.25)
     fig.clear()
     plt.close()
 
@@ -191,7 +191,7 @@ def main():
     fig.set_layout_engine('compressed')
     fname = parsed.pfx + 'assoc.dmiss_iopct.openmp' + parsed.ext
     logger.info(f'Writing {fname}')
-    fig.savefig(fname)
+    fig.savefig(fname, bbox_inches='tight', pad_inches=.25)
     fig.clear()
     plt.close()
 
@@ -204,7 +204,7 @@ def main():
     fig.set_layout_engine('compressed')
     fname = parsed.pfx + 'bsize.dmiss_iopct.openmp' + parsed.ext
     logger.info(f'Writing {fname}')
-    fig.savefig(fname)
+    fig.savefig(fname, bbox_inches='tight', pad_inches=.25)
     fig.clear()
     plt.close()
 
@@ -217,7 +217,7 @@ def main():
     fig.set_layout_engine('compressed')
     fname = parsed.pfx + 'dmiss_iopct.openmp' + parsed.ext
     logger.info(f'Writing {fname}')
-    fig.savefig(fname)
+    fig.savefig(fname, bbox_inches='tight', pad_inches=.25)
     fig.clear()
     plt.close()
 
@@ -230,7 +230,7 @@ def main():
     fig.set_layout_engine('compressed')
     fname = parsed.pfx + 'tmiss_iopct.openmp' + parsed.ext
     logger.info(f'Writing {fname}')
-    fig.savefig(fname)
+    fig.savefig(fname, bbox_inches='tight', pad_inches=.25)
     fig.clear()
     plt.close()
 
@@ -243,7 +243,7 @@ def main():
     fig.set_layout_engine('compressed')
     fname = parsed.pfx + 'dmiss_iopct.mrtc' + parsed.ext
     logger.info(f'Writing {fname}')
-    fig.savefig(fname)
+    fig.savefig(fname, bbox_inches='tight', pad_inches=.25)
     fig.clear()
     plt.close()
 
@@ -256,7 +256,7 @@ def main():
     fig.set_layout_engine('compressed')
     fname = parsed.pfx + 'tmiss_iopct.mrtc' + parsed.ext
     logger.info(f'Writing {fname}')
-    fig.savefig(fname)
+    fig.savefig(fname, bbox_inches='tight', pad_inches=.25)
     fig.clear()
     plt.close()
 

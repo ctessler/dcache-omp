@@ -8,8 +8,8 @@ USE := unused
 all: graphs notused
 
 graphs: $(OUT)/calc.csv | $(GRP)
-	$(BIN)/g-agg.py $(OUT)/calc.csv --pfx=$(GRP)/g-agg.
-	$(BIN)/g-bars.py $(OUT)/calc.csv --pfx=$(GRP)/g-bar
+	$(BIN)/g-agg.py $(OUT)/calc.csv --pfx=$(GRP)/g-agg. --ext=.eps
+	$(BIN)/g-bars.py $(OUT)/calc.csv --pfx=$(GRP)/g-bar --ext=.eps
 
 notused: $(OUT)/calc.csv | $(USE)
 	# Keep these building...
