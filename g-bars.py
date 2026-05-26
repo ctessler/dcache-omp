@@ -92,7 +92,7 @@ def bestp(ax, df, cache_sets, blk_size, assoc):
     ax.set_yticks(vals)
     ax.set_yticklabels([f'{v}' r'\%' for v in vals])
     ax.set_xlabel('Benchmark')
-    ax.set_ylabel('Percentage of ' + appr2name(common.IONLY) + ' Data Cache Misses')
+    ax.set_ylabel('Percentage of ' + appr2name(common.IONLY) + '\nData Cache Misses')
     ax.legend(loc='lower right')
 
 #

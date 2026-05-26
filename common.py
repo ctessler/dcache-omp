@@ -57,7 +57,7 @@ matplotlib.rcParams.update({
     'font.size' : 16,
     'text.usetex': True,
 #    'lines.linewidth' : 4.0,
-    'lines.markersize' : 18.0,
+    'lines.markersize' : 16.0,
 #    'figure.figsize' : (11,8)
 #    'text.latex.preamble' : r'''\usepackage{amsfonts}'''
 

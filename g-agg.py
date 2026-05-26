@@ -60,6 +60,7 @@ def _3pack(subf, ax, x, xlabel, y, ylabel, dopct=False):
             best[k] = frame[y].mean()
 
     ax.plot(xvals, [float(ionly[v]) for v in xvals],
+            zorder=5,
             label=appr2name(common.IONLY),
             linestyle=appr2line(common.IONLY),
             marker=appr2mark(common.IONLY),
@@ -70,6 +71,7 @@ def _3pack(subf, ax, x, xlabel, y, ylabel, dopct=False):
             marker=appr2mark(common.STACK),
             color=appr2color(common.STACK))
     ax.plot(xvals, [float(best[v]) for v in xvals],
+            zorder=10,
             label=appr2name(common.BEST),
             linestyle=appr2line(common.BEST),
             marker=appr2mark(common.BEST),
@@ -109,6 +111,7 @@ def threepack(subf, sizes, field, ax, label):
             raise ValueError
 
     ax.plot(sizes, [float(ionly[x]) for x in sizes],
+            zorder=5,
             label=appr2name(common.IONLY),
             linestyle=appr2line(common.IONLY),
             marker=appr2mark(common.IONLY),
@@ -119,6 +122,7 @@ def threepack(subf, sizes, field, ax, label):
             marker=appr2mark(common.STACK),
             color=appr2color(common.STACK))
     ax.plot(sizes, [float(best[x]) for x in sizes],
+            zorder=10,
             label=appr2name(common.BEST),
             linestyle=appr2line(common.BEST),
             marker=appr2mark(common.BEST),
@@ -130,7 +134,7 @@ def threepack(subf, sizes, field, ax, label):
     else:
         metric = 'Total'
 
-    ax.set_ylabel(f'{metric} Cache Miss Improvement Compared to I-Only')
+    ax.set_ylabel(f'{metric} Cache Miss Improvement\nCompared to I-Only')
     ax.set_xlabel('Cache Size (Bytes)')
     ax.set_xscale('log', base=2)
     ax.set_xticks(sizes)
