@@ -43,6 +43,50 @@ class GOAArgs(argparse.ArgumentParser):
                           help='Extension for files '
                           'default:.pdf')
 
+def _3pack(subf, ax, x, xlabel, y, ylabel, dopct=False):
+    ionly = {}
+    stack = {}
+    best  = {}
+
+    groups = subf.groupby([x, 'appr'])
+    xvals = sorted(subf[x].unique())
+    for keys,frame in groups:
+        (k, appr) = keys
+        if appr == common.IONLY:
+            ionly[k] = frame[y].mean()
+        if appr == common.STACK:
+            stack[k] = frame[y].mean()
+        if appr == common.BEST:
+            best[k] = frame[y].mean()
+
+    ax.plot(xvals, [float(ionly[v]) for v in xvals],
+            label=appr2name(common.IONLY),
+            linestyle=appr2line(common.IONLY),
+            marker=appr2mark(common.IONLY),
+            color=appr2color(common.IONLY))
+    ax.plot(xvals, [float(stack[v]) for v in xvals],
+            label=appr2name(common.STACK),
+            linestyle=appr2line(common.STACK),
+            marker=appr2mark(common.STACK),
+            color=appr2color(common.STACK))
+    ax.plot(xvals, [float(best[v]) for v in xvals],
+            label=appr2name(common.BEST),
+            linestyle=appr2line(common.BEST),
+            marker=appr2mark(common.BEST),
+            color=appr2color(common.BEST))
+
+    ax.set_xscale('log', base=2)
+    ax.set_xticks(xvals)
+    if dopct:
+        vals = ax.get_yticks()
+        ax.set_yticks(vals)
+        ax.set_yticklabels([f'{v}' r'\%' for v in vals])
+
+    ax.set_xticklabels(xvals)
+    ax.set_xlabel(xlabel)
+    ax.set_ylabel(ylabel)
+    ax.legend()
+
 def threepack(subf, sizes, field, ax, label):
     ionly = {}
     stack = {}
@@ -124,6 +168,46 @@ def main():
         sizes.append(s * b * a)
     sizes = sorted(list(set(sizes)))
 
+
+    #
+    # OpenMP threads vs dmiss_iopct
+    #
+    fig, ax = plt.subplots()
+    _3pack(omp, ax, 'threads', 'Threads', 'dmiss_iopct',
+           'Percentage of I-Only Data Cache Misses', dopct=True)
+    fig.set_layout_engine('compressed')
+    fname = parsed.pfx + 'threads.dmiss_iopct.openmp' + parsed.ext
+    logger.info(f'Writing {fname}')
+    fig.savefig(fname)
+    fig.clear()
+    plt.close()
+
+    #
+    # OpenMP associativity vs dmiss_iopct
+    #
+    fig, ax = plt.subplots()
+    _3pack(omp, ax, 'assoc', 'Associativity', 'dmiss_iopct',
+           'Percentage of I-Only Data Cache Misses', dopct=True)
+    fig.set_layout_engine('compressed')
+    fname = parsed.pfx + 'assoc.dmiss_iopct.openmp' + parsed.ext
+    logger.info(f'Writing {fname}')
+    fig.savefig(fname)
+    fig.clear()
+    plt.close()
+
+    #
+    # OpenMP associativity vs dmiss_iopct
+    #
+    fig, ax = plt.subplots()
+    _3pack(omp, ax, 'blk_size', 'Block Size', 'dmiss_iopct',
+           'Percentage of I-Only Data Cache Misses', dopct=True)
+    fig.set_layout_engine('compressed')
+    fname = parsed.pfx + 'bsize.dmiss_iopct.openmp' + parsed.ext
+    logger.info(f'Writing {fname}')
+    fig.savefig(fname)
+    fig.clear()
+    plt.close()
+
     #
     # OpenMP data cache misses
     #
@@ -131,7 +215,7 @@ def main():
     threepack(omp, sizes, 'dmiss_iopct', ax, 'dmiss_iopct')
     fig.suptitle('OpenMP Benchmarks')
     fig.set_layout_engine('compressed')
-    fname = parsed.pfx + '.dmiss_iopct.openmp' + parsed.ext
+    fname = parsed.pfx + 'dmiss_iopct.openmp' + parsed.ext
     logger.info(f'Writing {fname}')
     fig.savefig(fname)
     fig.clear()
@@ -144,7 +228,7 @@ def main():
     threepack(omp, sizes, 'tmiss_iopct', ax, 'tmiss_iopct')
     fig.suptitle('OpenMP Benchmarks')
     fig.set_layout_engine('compressed')
-    fname = parsed.pfx + '.tmiss_iopct.openmp' + parsed.ext
+    fname = parsed.pfx + 'tmiss_iopct.openmp' + parsed.ext
     logger.info(f'Writing {fname}')
     fig.savefig(fname)
     fig.clear()
@@ -157,7 +241,7 @@ def main():
     threepack(mrtc, sizes, 'dmiss_iopct', ax, 'dmiss_iopct')
     fig.suptitle('MRTC Benchmarks')
     fig.set_layout_engine('compressed')
-    fname = parsed.pfx + '.dmiss_iopct.mrtc' + parsed.ext
+    fname = parsed.pfx + 'dmiss_iopct.mrtc' + parsed.ext
     logger.info(f'Writing {fname}')
     fig.savefig(fname)
     fig.clear()
@@ -170,7 +254,7 @@ def main():
     threepack(mrtc, sizes, 'tmiss_iopct', ax, 'tmiss_iopct')
     fig.suptitle('MRTC Benchmarks')
     fig.set_layout_engine('compressed')
-    fname = parsed.pfx + '.tmiss_iopct.mrtc' + parsed.ext
+    fname = parsed.pfx + 'tmiss_iopct.mrtc' + parsed.ext
     logger.info(f'Writing {fname}')
     fig.savefig(fname)
     fig.clear()

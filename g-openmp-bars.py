@@ -91,7 +91,7 @@ def bestp(ax, df, cache_sets, blk_size, assoc):
     vals = ax.get_yticks()
     ax.set_yticks(vals)
     ax.set_yticklabels([f'{v}' r'\%' for v in vals])
-    ax.set_xlabel('OpenMP Benchmark')
+    ax.set_xlabel('Benchmark')
     ax.set_ylabel('Percentage of ' + appr2name(common.IONLY) + ' Data Cache Misses')
     ax.legend(loc='lower right')
 
